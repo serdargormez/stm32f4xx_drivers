@@ -259,6 +259,15 @@ typedef struct
 #define GPIOH_REG_RESET()			do{ (RCC->AHB1ENR |= (1 << 7)); (RCC->AHB1ENR &= ~(1 << 7));}while(0)
 
 
+/*Macros to reset SPI SPIx preipherals*/
+
+#define SPI1_REG_RESET()			do{ (RCC->APB2ENR |= (1 << 12)); (RCC->APB2ENR &= ~(1 << 12));}while(0)
+#define SPI2_REG_RESET()			do{ (RCC->APB1ENR |= (1 << 14)); (RCC->APB2ENR &= ~(1 << 14));}while(0)
+#define SPI3_REG_RESET()			do{ (RCC->APB1ENR |= (1 << 15)); (RCC->APB2ENR &= ~(1 << 15));}while(0)
+#define SPI4_REG_RESET()			do{ (RCC->APB2ENR |= (1 << 13)); (RCC->APB2ENR &= ~(1 << 13));}while(0)
+#define SPI5_REG_RESET()			do{ (RCC->APB2ENR |= (1 << 20)); (RCC->APB2ENR &= ~(1 << 20));}while(0)
+
+
 #define GPIO_BASE_ADDR_TO_CODE(x)   ((x == GPIOA)?0:\
 									 (x == GPIOB)?1:\
 									 (x == GPIOC)?2:\
