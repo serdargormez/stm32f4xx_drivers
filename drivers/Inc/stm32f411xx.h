@@ -67,7 +67,9 @@
 /*APB2 peripheral base addresses*/
 
 #define EXTI_BASEADDR					(APB2_BASEADDR + 0x3C00)
-#define SPI1_BASEADDR					(APB2_BASEADDR + 0x3400)
+#define SPI1_BASEADDR					(APB2_BASEADDR + 0x3000)
+#define SPI4_BASEADDR					(APB2_BASEADDR + 0x3400)
+#define SPI5_BASEADDR					(APB2_BASEADDR + 0x5000)
 #define SYSCFG_BASEADDR					(APB2_BASEADDR + 0x3800)
 #define USART1_BASEADDR					(APB2_BASEADDR + 0x1000)
 #define USART6_BASEADDR					(APB2_BASEADDR + 0x1400)
@@ -167,6 +169,11 @@ typedef struct
 
 }SYSCFG_RegDef_t;
 
+
+typedef struct
+{
+
+}SPI_RegDef_t;
 /*Peripheral definitions ( Peripheral base addresses typecasted to xxx_RegDef_t)*/
 
 #define GPIOA 					( (GPIO_RegDef_t*)GPIOA_BASEADDR )
@@ -175,6 +182,12 @@ typedef struct
 #define GPIOD 					( (GPIO_RegDef_t*)GPIOD_BASEADDR )
 #define GPIOE 					( (GPIO_RegDef_t*)GPIOE_BASEADDR )
 #define GPIOH 					( (GPIO_RegDef_t*)GPIOH_BASEADDR )
+
+#define SPI1					( (SPI_RegDef_t*)SPI1_BASEADDR)
+#define SPI2					( (SPI_RegDef_t*)SPI2_BASEADDR)
+#define SPI3					( (SPI_RegDef_t*)SPI3_BASEADDR)
+#define SPI4					( (SPI_RegDef_t*)SPI4_BASEADDR)
+#define SPI5					( (SPI_RegDef_t*)SPI5_BASEADDR)
 
 #define RCC						( (RCC_RegDef_t*)RCC_BASEADDR )
 #define EXTI					( (EXTI_RegDef_t*)EXTI_BASEADDR )
@@ -227,6 +240,15 @@ typedef struct
 #define GPIOH_PCLK_DI() 			( RCC->AHB1ENR &= ~(1 << 7) )
 
 
+/*Clock Disable Macros for SPIx Peripheral*/
+
+#define SPI1_PCLK_DI()				( RCC->APB2ENR &= ~(1 << 12) )
+#define SPI2_PCLK_DI()				( RCC->APB1ENR &= ~(1 << 14) )
+#define SPI3_PCLK_DI()				( RCC->APB1ENR &= ~(1 << 15) )
+#define SPI4_PCLK_DI()				( RCC->APB2ENR &= ~(1 << 13) )
+#define SPI5_PCLK_DI()				( RCC->APB2ENR &= ~(1 << 20) )
+
+
 /*Macros to reset GPIO GPIOx preipherals*/
 
 #define GPIOA_REG_RESET()			do{ (RCC->AHB1ENR |= (1 << 0)); (RCC->AHB1ENR &= ~(1 << 0));}while(0)
@@ -256,7 +278,8 @@ typedef struct
 
 
 
-
+#include "stm32f411xx_gpio_driver.h"
+#include "stm32f411xx_spi_driver.h"
 
 
 
