@@ -28,14 +28,6 @@
 
 #define NO_PR_BITS_IMPLEMENTED  4
 
-/*Some Macros*/
-
-#define ENABLE				1
-#define DISABLE				0
-#define SET					ENABLE
-#define RESET				DISABLE
-#define GPIO_PIN_SET		SET
-#define GPIO_PIN_RESET  	RESET
 
 /*Base addresses of Flash and Sram memories*/
 
