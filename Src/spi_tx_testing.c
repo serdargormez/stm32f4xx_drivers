@@ -44,6 +44,23 @@ void SPI2_GPIOInits(void)
 	GPIO_Init(&SPIPins);
 }
 
+void SPI2_Init()
+{
+	SPI_Handle_t SPI2handle;
+
+	SPI2handle.pSPIx = SPI2;
+	SPI2handle.SPIConfig.SPI_BusConfig = SPI_BUS_CONFIG_FD;
+	SPI2handle.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MODE_MASTER;
+	SPI2handle.SPIConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV2;
+	SPI2handle.SPIConfig.SPI_DFF = SPI_DFF_8BITS;
+	SPI2handle.SPIConfig.SPI_CPOL = SPI_CPOL_LOW;
+	SPI2handle.SPIConfig.SPI_CPHA = SPI_CPHA_LOW;
+	SPI2handle.SPIConfig.SPI_SSM = SPI_SSM_EN; //Software slave management enabled for NSS Pin
+
+	SPI_Init(&SPI2handle);
+
+}
+
 int main(void)
 {
 	SPI2_GPIOInits();
