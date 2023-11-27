@@ -90,40 +90,40 @@ void SPI_Init(SPI_Handle_t *pSPIHandle)
 	uint32_t tempreg = 0;
 
 	//Configure Device Mode
-	tempreg |= pSPIHandle->SPIConfig.SPI_DeviceMode << 2;
+	tempreg |= pSPIHandle->SPIConfig.SPI_DeviceMode << SPI_CR1_MSTR;
 
 	//Configure the Bus config
 	if(pSPIHandle->SPIConfig.SPI_BusConfig == SPI_BUS_CONFIG_FD)
 	{
 		//BIDI mode should be cleared
-		tempreg &= ~(1 << 15);
+		tempreg &= ~(1 << SPI_CR1_BIDIMODE);
 	}
 
 	else if(pSPIHandle->SPIConfig.SPI_BusConfig == SPI_BUS_CONFIG_HD)
 	{
 		//BIDI mode should be set
-		tempreg |= (1 << 15);
+		tempreg |= (1 << SPI_CR1_BIDIMODE);
 	}
 
 	else if(pSPIHandle->SPIConfig.SPI_BusConfig == SPI_BUS_CONFIG_SIMPLEX_RXONLY)
 	{
 		//BIDI mode should be cleared
-		tempreg &= ~(1 << 15);
+		tempreg &= ~(1 << SPI_CR1_BIDIMODE);
 		//RX only bit must be set
-		tempreg |= (1 << 10);
+		tempreg |= (1 << SPI_CR1_RXONLY);
 	}
 
 	//Configure the SPI serial clock speed (baud rate)
-	tempreg |= (pSPIHandle->SPIConfig.SPI_SclkSpeed << 3);
+	tempreg |= (pSPIHandle->SPIConfig.SPI_SclkSpeed << SPI_CR1_BR);
 
 	//Configure the DFF
-	tempreg |= (pSPIHandle->SPIConfig.SPI_DFF << 11);
+	tempreg |= (pSPIHandle->SPIConfig.SPI_DFF << SPI_CR1_DFF);
 
 	//Configure the CPOL
-	tempreg |= (pSPIHandle->SPIConfig.SPI_CPOL << 1);
+	tempreg |= (pSPIHandle->SPIConfig.SPI_CPOL << SPI_CR1_CPOL);
 
 	//Configure the CPHA
-	tempreg |= (pSPIHandle->SPIConfig.SPI_CPOL << 0);
+	tempreg |= (pSPIHandle->SPIConfig.SPI_CPHA << SPI_CR1_CPHA);
 
 	pSPIHandle->pSPIx->CR1 = tempreg;
 
