@@ -96,16 +96,20 @@ void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len);
 void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len);
 
 
-/* Irq config and ISR handling */
+/*Other peripheral Control API's*/
 
-void SPI_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
-void SPI_IRQ_PriortyConfig(uint8_t IRQNumber, uint32_t IRQPriorty);
-void SPI_IRQHandling(SPI_Handle_t *pHandle);
+void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 
 
 /*Flag Status*/
 
 uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName);
 
+
+/* Irq config and ISR handling */
+
+void SPI_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
+void SPI_IRQ_PriortyConfig(uint8_t IRQNumber, uint32_t IRQPriorty);
+void SPI_IRQHandling(SPI_Handle_t *pHandle);
 
 #endif /* INC_STM32F411XX_SPI_DRIVER_H_ */

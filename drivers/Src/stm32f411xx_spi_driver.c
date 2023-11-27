@@ -167,6 +167,25 @@ void SPI_DeInit(SPI_RegDef_t *pSPIx)
 	}
 }
 
+
+/*Other peripheral Control API's*/
+
+void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi)
+{
+	if(EnOrDi == ENABLE)
+	{
+		pSPIx->CR1 |= (1 << SPI_CR1_SPE);
+	}
+
+	else
+	{
+		pSPIx->CR1 &= ~(1 << SPI_CR1_SPE);
+	}
+}
+
+
+/*Flag Status*/
+
 uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName)
 {
 	uint32_t flag_temp= 0;
@@ -242,5 +261,6 @@ void SPI_IRQHandling(SPI_Handle_t *pHandle)
 {
 
 }
+
 
 /*End of file*/
