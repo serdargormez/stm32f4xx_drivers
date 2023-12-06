@@ -15,7 +15,10 @@ PB14 -> SPI2_MISO
 PB15 -> SPI2_MOSI
 Alternate function mode : 5
 */
-
+void delay(void)
+{
+	for(uint32_t i = 0; i <= 200000 ; i++);
+}
 
 void SPI2_GPIOInits(void)
 {
@@ -26,7 +29,7 @@ void SPI2_GPIOInits(void)
 	SPIPins.GPIO_PinConfig.GPIO_PinAltFunMode = 5;
 	SPIPins.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
 	SPIPins.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
-	SPIPins.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
+	SPIPins.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_HIGH;
 
 	//SCLK
 	SPIPins.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_13;
@@ -52,7 +55,7 @@ void SPI2_Init()
 	SPI2handle.pSPIx = SPI2;
 	SPI2handle.SPIConfig.SPI_BusConfig = SPI_BUS_CONFIG_FD;
 	SPI2handle.SPIConfig.SPI_DeviceMode = SPI_DEVICE_MODE_MASTER;
-	SPI2handle.SPIConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV2;
+	SPI2handle.SPIConfig.SPI_SclkSpeed = SPI_SCLK_SPEED_DIV64;
 	SPI2handle.SPIConfig.SPI_DFF = SPI_DFF_8BITS;
 	SPI2handle.SPIConfig.SPI_CPOL = SPI_CPOL_LOW;
 	SPI2handle.SPIConfig.SPI_CPHA = SPI_CPHA_LOW;
@@ -64,19 +67,44 @@ void SPI2_Init()
 
 int main(void)
 {
-	char user_data[] = "Hello World";
+	uint8_t user_data[8] = {1,2,3,4,5,6,7,8};
 
 	SPI2_GPIOInits();
 
 	SPI2_Init();
 
-	//Enable the SPI2 peripheral
-	SPI_PeripheralControl(SPI2, ENABLE);
+	//This makes NSS internally high and avoids MODEF error
+	SPI_SSIConfig(SPI2, ENABLE);
 
-	SPI_SendData(SPI2, (uint8_t*)user_data, strlen(user_data));
+	//Enable the SPI2 peripheral
+
+
+
+	GPIO_Handle_t GpioLed;
+	GpioLed.pGPIOx = GPIOD;
+	GpioLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_12;
+	GpioLed.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
+	GpioLed.GPIO_PinConfig.GPIO_PinSpeed = GPIO_SPEED_FAST;
+	GpioLed.GPIO_PinConfig.GPIO_PinOPType = GPIO_OP_TYPE_PP;
+	GpioLed.GPIO_PinConfig.GPIO_PinPuPdControl = GPIO_NO_PUPD;
+
+	GPIO_PeriClockControl(GpioLed.pGPIOx, ENABLE);
+	GPIO_Init(&GpioLed);
 
 
 	while(1)
+	{
+			SPI_PeripheralControl(SPI2, ENABLE);
+
+
+			SPI_SendData(SPI2, user_data, 8);
+
+			//SPI_PeripheralControl(SPI2, DISABLE);
+
+			delay();
+
+			GPIO_ToggleOutputPin(GpioLed.pGPIOx, GPIO_PIN_NO_12);
+	}
 
 	return 0;
 }
