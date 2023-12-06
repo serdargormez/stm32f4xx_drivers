@@ -129,6 +129,9 @@ void SPI_Init(SPI_Handle_t *pSPIHandle)
 	//Configure the CPHA
 	tempreg |= (pSPIHandle->SPIConfig.SPI_CPHA << SPI_CR1_CPHA);
 
+	//Configure the SSM
+	tempreg |= (pSPIHandle->SPIConfig.SPI_SSM << SPI_CR1_SSM);
+
 	pSPIHandle->pSPIx->CR1 = tempreg;
 
 }
@@ -180,6 +183,20 @@ void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi)
 	else
 	{
 		pSPIx->CR1 &= ~(1 << SPI_CR1_SPE);
+	}
+}
+
+
+void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t EnOrDi)
+{
+	if(EnOrDi == ENABLE)
+	{
+		pSPIx->CR1 |= (1 << SPI_CR1_SSI);
+	}
+
+	else
+	{
+		pSPIx->CR1 &= ~(1 << SPI_CR1_SSI);
 	}
 }
 
