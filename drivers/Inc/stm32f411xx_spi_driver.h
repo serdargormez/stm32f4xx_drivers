@@ -99,7 +99,7 @@ void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len);
 /*Other peripheral Control API's*/
 
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
-
+void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 
 /*Flag Status*/
 
