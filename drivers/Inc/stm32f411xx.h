@@ -165,6 +165,7 @@ typedef struct
 typedef struct
 {
 	__vo uint32_t CR1;
+	__vo uint32_t CR2;
 	__vo uint32_t SR;
 	__vo uint32_t DR;
 	__vo uint32_t CRCPR;
