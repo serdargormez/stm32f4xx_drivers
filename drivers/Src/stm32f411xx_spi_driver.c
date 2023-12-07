@@ -254,9 +254,33 @@ void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len)
 }
 
 
-void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len)
+void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len)
 {
+	while(Len > 0)
+	{
+		//wait until TXE is set
+		while(SPI_GetFlagStatus(pSPIx, SPI_RXNE_FLAG) == FLAG_RESET);
 
+		//check the DFF bit in CR1
+		if(pSPIx->CR1 & (1 << SPI_CR1_DFF))
+		{
+			//16 bit DFF
+			//Load the data from DR register to Rxbuffer
+			*((uint16_t*)pRxBuffer) = pSPIx->DR;
+			Len--;
+			Len--;
+			(uint16_t*)pRxBuffer++;
+		}
+
+		else
+		{
+			//8 bit DFF
+			//Load the data from DR register to Rxbuffer
+			*pRxBuffer = pSPIx->DR;
+			Len--;
+			pRxBuffer++;
+		}
+	}
 }
 
 
