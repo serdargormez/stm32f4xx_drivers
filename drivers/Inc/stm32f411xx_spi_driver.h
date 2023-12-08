@@ -27,8 +27,14 @@ typedef struct
 
 typedef struct
 {
-	SPI_RegDef_t *pSPIx;
-	SPI_Config_t SPIConfig;
+	SPI_RegDef_t  *pSPIx;
+	SPI_Config_t  SPIConfig;
+	uint8_t 	  *pTxbuffer;
+	uint8_t 	  *pRxbuffer;
+	uint32_t 	  TxLen;
+	uint32_t 	  RxLen;
+	uint8_t 	  TxState;
+	uint8_t 	  RxState;
 
 }SPI_Handle_t;
 
@@ -74,10 +80,17 @@ typedef struct
 #define SPI_SSM_EN							1
 #define SPI_SSM_DI							0
 
+
 /*SPI related status flag definitions*/
 #define SPI_TXE_FLAG 						(1 << SPI_SR_TXE)
 #define SPI_RXNE_FLAG 						(1 << SPI_SR_RXNE)
 #define SPI_BUSY_FLAG 						(1 << SPI_SR_BSY)
+
+
+/*SPI application state*/
+#define SPI_READY							0
+#define SPI_BUSY_IN_RX						1
+#define SPI_BUSY_IN_TX						2
 
 /*Peripheral clock setup */
 
@@ -95,6 +108,8 @@ void SPI_DeInit(SPI_RegDef_t *pSPIx);
 void SPI_SendData(SPI_RegDef_t *pSPIx, uint8_t *pTxBuffer, uint32_t Len);
 void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len);
 
+uint8_t SPI_SendData_IT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer, uint32_t Len);
+uint8_t SPI_ReceiveData_IT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_t Len);
 
 /*Other peripheral Control API's*/
 
@@ -111,6 +126,6 @@ uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName);
 
 void SPI_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
 void SPI_IRQ_PriortyConfig(uint8_t IRQNumber, uint32_t IRQPriorty);
-void SPI_IRQHandling(SPI_Handle_t *pHandle);
+void SPI_IRQHandling(SPI_Handle_t *pSPIHandle);
 
 #endif /* INC_STM32F411XX_SPI_DRIVER_H_ */
