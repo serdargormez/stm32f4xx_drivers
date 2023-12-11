@@ -31,7 +31,7 @@ GPIO_Handle_t GpioLed, GpioButton;
 int main(void)
 {
 
-	memset(&GpioLed,0,sizeof(GpioButton));
+	memset(&GpioButton,0,sizeof(GpioButton));
 	memset(&GpioLed,0,sizeof(GpioLed));
 
     GpioButton.pGPIOx = GPIOA;
