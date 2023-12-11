@@ -92,6 +92,13 @@ typedef struct
 #define SPI_BUSY_IN_RX						1
 #define SPI_BUSY_IN_TX						2
 
+
+/*Possible SPI application event*/
+#define SPI_EVENT_TX_CMPLT					1
+#define SPI_EVENT_RX_CMPLT					2
+#define SPI_EVENT_OVR_ERR					3
+#define SPI_EVENT_CRC_ERR					4
+
 /*Peripheral clock setup */
 
 void SPI_PeriClockControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
@@ -116,6 +123,9 @@ uint8_t SPI_ReceiveData_IT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 void SPI_SSIConfig(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 void SPI_SSOEConfig(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
+void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
+void SPI_CloseTransmission(SPI_Handle_t *pSPIHandle);
+void SPI_CloseReception(SPI_Handle_t *pSPIHandle);
 
 /*Flag Status*/
 
@@ -127,5 +137,9 @@ uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName);
 void SPI_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
 void SPI_IRQ_PriortyConfig(uint8_t IRQNumber, uint32_t IRQPriorty);
 void SPI_IRQHandling(SPI_Handle_t *pSPIHandle);
+
+
+/*Application callback*/
+void SPI_ApplicationEventCallback(SPI_Handle_t *pSPIHandle, uint8_t AppEvent);
 
 #endif /* INC_STM32F411XX_SPI_DRIVER_H_ */
