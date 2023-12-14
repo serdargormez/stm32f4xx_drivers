@@ -43,8 +43,6 @@ int main(void)
     GPIO_PeriClockControl(GpioButton.pGPIOx, ENABLE);
     GPIO_Init(&GpioButton);
 
-
-
     GpioLed.pGPIOx = GPIOD;
 	GpioLed.GPIO_PinConfig.GPIO_PinNumber = GPIO_PIN_NO_12;
 	GpioLed.GPIO_PinConfig.GPIO_PinMode = GPIO_MODE_OUT;
