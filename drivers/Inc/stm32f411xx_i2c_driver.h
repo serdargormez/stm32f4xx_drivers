@@ -51,4 +51,40 @@ typedef struct
 #define I2C_FM_DUTY_16_9		1
 
 
+/*Peripheral clock setup */
+
+void I2C_PeriClockControl(I2C_RegDef_t *pI2Cx, uint8_t EnOrDi);
+
+
+/*Init and De-init*/
+
+void I2C_Init(I2C_Handle_t *I2CHandle);
+void I2C_DeInit(I2C_RegDef_t *pI2Cx);
+
+
+/* Data send and receive */
+
+
+
+
+/*Other peripheral Control API's*/
+
+void I2C_PeripheralControl(I2C_RegDef_t *pI2Cx, uint8_t EnOrDi);
+
+
+/*Flag Status*/
+
+uint8_t I2C_GetFlagStatus(I2C_RegDef_t *pI2Cx, uint32_t FlagName);
+
+
+/* Irq config and ISR handling */
+
+void I2C_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
+void I2C_IRQ_PriortyConfig(uint8_t IRQNumber, uint32_t IRQPriorty);
+
+
+/*Application callback*/
+
+void I2C_ApplicationEventCallback(I2C_Handle_t *pI2CHandle, uint8_t AppEvent);
+
 #endif /* INC_STM32F411XX_I2C_DRIVER_H_ */
