@@ -99,6 +99,7 @@ typedef struct
 #define SPI_EVENT_OVR_ERR					3
 #define SPI_EVENT_CRC_ERR					4
 
+
 /*Peripheral clock setup */
 
 void SPI_PeriClockControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
@@ -106,7 +107,7 @@ void SPI_PeriClockControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 
 /*Init and De-init*/
 
-void SPI_Init(SPI_Handle_t *SPIHandle);
+void SPI_Init(SPI_Handle_t *pSPIHandle);
 void SPI_DeInit(SPI_RegDef_t *pSPIx);
 
 
@@ -118,6 +119,7 @@ void SPI_ReceiveData(SPI_RegDef_t *pSPIx, uint8_t *pRxBuffer, uint32_t Len);
 uint8_t SPI_SendData_IT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer, uint32_t Len);
 uint8_t SPI_ReceiveData_IT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_t Len);
 
+
 /*Other peripheral Control API's*/
 
 void SPI_PeripheralControl(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
@@ -126,6 +128,7 @@ void SPI_SSOEConfig(SPI_RegDef_t *pSPIx, uint8_t EnOrDi);
 void SPI_ClearOVRFlag(SPI_RegDef_t *pSPIx);
 void SPI_CloseTransmission(SPI_Handle_t *pSPIHandle);
 void SPI_CloseReception(SPI_Handle_t *pSPIHandle);
+
 
 /*Flag Status*/
 
@@ -140,6 +143,7 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle);
 
 
 /*Application callback*/
+
 void SPI_ApplicationEventCallback(SPI_Handle_t *pSPIHandle, uint8_t AppEvent);
 
 #endif /* INC_STM32F411XX_SPI_DRIVER_H_ */

@@ -17,12 +17,14 @@
 #define NVIC_ISER2				(__vo uint32_t*)0xE000E108
 #define NVIC_ISER3				(__vo uint32_t*)0xE000E10c
 
+
 /*Arm Cortex Mx Proccessor NVIC ICERx Reg Address*/
 
 #define NVIC_ICER0				(__vo uint32_t*)0xE000E180
 #define NVIC_ICER1				(__vo uint32_t*)0xE000E184
 #define NVIC_ICER2				(__vo uint32_t*)0xE000E188
 #define NVIC_ICER3				(__vo uint32_t*)0xE000E18C
+
 
 /*Arm Cortex Mx Proccessor NVIC ICERx Reg Address*/
 
@@ -83,6 +85,7 @@
 
 #define RCC_BASEADDR					(AHB1_BASEADDR + 0x3800)
 
+
 /*Peripheral Register definition structures*/
 
 /*GPIO*/
@@ -99,6 +102,7 @@ typedef struct
 	__vo uint32_t AFR[2];
 
 }GPIO_RegDef_t;
+
 
 /*RCC*/
 typedef struct
@@ -287,6 +291,7 @@ typedef struct
 #define I2C2_PCLK_DI()				( RCC->APB1ENR &= ~(1 << 22) )
 #define I2C3_PCLK_DI()				( RCC->APB1ENR &= ~(1 << 23) )
 
+
 /*Macros to reset GPIO GPIOx preipherals*/
 
 #define GPIOA_REG_RESET()			do{ (RCC->AHB1ENR |= (1 << 0)); (RCC->AHB1ENR &= ~(1 << 0));}while(0)
@@ -337,6 +342,7 @@ typedef struct
 #define IRQ_NO_SPI4 		84
 #define IRQ_NO_SPI5 		85
 
+
 /*Some generic macros*/
 
 #define ENABLE				1
@@ -347,6 +353,7 @@ typedef struct
 #define GPIO_PIN_RESET  	RESET
 #define FLAG_SET			SET
 #define FLAG_RESET			RESET
+
 
 /*********************************************************************************************/
 /*Bit position definitions of SPI peripheral*/
