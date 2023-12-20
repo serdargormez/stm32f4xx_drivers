@@ -12,6 +12,42 @@
 uint16_t AHB_PreScaler[8] = {2,4,8,16,64,128,256,512};
 uint8_t APB1_PreScaler[4] = {2,4,8,16};
 
+/*Helper functions*/
+
+static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2Cx);
+static void I2C_GenerateStopCondition(I2C_RegDef_t *pI2Cx);
+static void I2C_ExecuteAddressPhase(I2C_RegDef_t *pI2Cx, uint8_t SlaveAddr);
+static void I2C_ClearAddrFlag(I2C_RegDef_t *pI2Cx);
+
+
+static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2Cx)
+{
+	pI2Cx->CR1 |= (1 << I2C_CR1_START);
+}
+
+
+static void I2C_GenerateStopCondition(I2C_RegDef_t *pI2Cx)
+{
+	pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
+}
+
+
+static void I2C_ExecuteAddressPhase(I2C_RegDef_t *pI2Cx, uint8_t SlaveAddr)
+{
+	SlaveAddr = (SlaveAddr << 1);
+	SlaveAddr &= ~(1 << 0); /*Slave address + r/nw bit = 0*/
+	pI2Cx->DR = SlaveAddr;
+}
+
+
+static void I2C_ClearAddrFlag(I2C_RegDef_t *pI2Cx)
+{
+	uint32_t dummyRead;
+	dummyRead = pI2Cx->SR1;
+	dummyRead = pI2Cx->SR2;
+	(void)dummyRead;
+}
+
 
 /*Peripheral Control API's*/
 
@@ -205,5 +241,89 @@ void I2C_Init(I2C_Handle_t *pI2CHandle)
 
 void I2C_DeInit(I2C_RegDef_t *pI2Cx)
 {
+	if(pI2Cx == I2C1)
+	{
+		I2C1_REG_RESET();
+	}
 
+	else if(pI2Cx == I2C2)
+	{
+		I2C2_REG_RESET();
+	}
+
+	else if(pI2Cx == I2C3)
+	{
+		I2C3_REG_RESET();
+	}
+
+	else
+	{
+		//do nothing
+	}
+}
+
+
+/*Data send and receive*/
+
+void I2C_MasterSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t Len, uint8_t SlaveAddr)
+{
+	/*Generate start condition*/
+	I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+
+
+	/*Confirm that start generation is completed by checking the SB flag in the SR1*/
+	/*Note : Until SB is cleared SCL will be streched (pulled to LOW)*/
+	while(!I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_SB));
+
+
+	/*Send the address of the slave with r/nw bit set to w(0) (total bit 8)*/
+	I2C_ExecuteAddressPhase(pI2CHandle->pI2Cx, SlaveAddr);
+
+
+	/*Confirm that address phase is completed by checking the ADDR flag in the SR1*/
+	while(!I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_ADDR));
+
+
+	/*Clear the ADDR flag according to its software sequence*/
+	/*Note : Until ADDR flag is cleared SCL will be streched (pulled to LOW)*/
+	I2C_ClearAddrFlag(pI2CHandle->pI2Cx);
+
+
+	/*Send data until Len becomes 0*/
+	while(Len > 0)
+	{
+		while(!I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_TXE));
+
+		pI2CHandle->pI2Cx->DR = *pTxBuffer;
+		pTxBuffer++;
+		Len--;
+	}
+
+
+	/*When Len becomes zero wait for TxE=1 and BTF=1 before generating the stop condition*/
+	/*Note : TxE=1 and BTF=1, means that both SR and DR are empty*/
+	while(!I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_TXE));
+
+	while(!I2C_GetFlagStatus(pI2CHandle->pI2Cx, I2C_FLAG_BTF));
+
+
+	/*Generate the STOP condition*/
+	/*Generating STOP , automatically clears by BTF*/
+	I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
+}
+
+
+uint8_t I2C_GetFlagStatus(I2C_RegDef_t *pI2Cx, uint32_t FlagName)
+{
+	if(pI2Cx->SR1 & FlagName)
+	{
+		return FLAG_SET;
+	}
+
+	else
+	{
+		//do nothing
+	}
+
+	return FLAG_RESET;
 }
