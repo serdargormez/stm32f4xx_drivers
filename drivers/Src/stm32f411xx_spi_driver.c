@@ -222,19 +222,18 @@ void SPI_SSOEConfig(SPI_RegDef_t *pSPIx, uint8_t EnOrDi)
 
 uint8_t SPI_GetFlagStatus(SPI_RegDef_t *pSPIx, uint32_t FlagName)
 {
-	uint32_t flag_temp= 0;
-
 	if(pSPIx->SR & FlagName)
 	{
-		flag_temp = FLAG_SET;
+		return FLAG_SET;
 	}
 
 	else
 	{
-		flag_temp = FLAG_RESET;
+		//do nothing
 	}
 
-	return flag_temp;
+	return FLAG_RESET;
+
 }
 
 
