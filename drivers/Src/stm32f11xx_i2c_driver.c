@@ -185,6 +185,7 @@ void I2C_Init(I2C_Handle_t *pI2CHandle)
 {
 	uint32_t tempreg = 0;
 
+
 	/*ACK control bit*/
 	tempreg |= (pI2CHandle->I2C_Config.I2C_AckControl << I2C_CR1_ACK);
 	pI2CHandle->pI2Cx->CR1 = tempreg;
@@ -236,8 +237,24 @@ void I2C_Init(I2C_Handle_t *pI2CHandle)
 
 	pI2CHandle->pI2Cx->CCR = tempreg;
 
-}
 
+	/*TRISE configuration*/
+	if(pI2CHandle->I2C_Config.I2C_SCLSpeed <= I2C_SCL_SPEED_SM)
+	{
+		/*Standart Mode*/
+		/* Trise / Tpclk -> Trise x Fpclk*/
+		tempreg = (RCC_GetPCLK1Value() / 1000000U) + 1;
+	}
+
+	else
+	{
+		/*Fast Mode*/
+		tempreg = ((RCC_GetPCLK1Value() * 300) / 1000000000U) + 1;
+	}
+
+	pI2CHandle->pI2Cx->TRISE = (tempreg & 0x3F);
+
+}
 
 void I2C_DeInit(I2C_RegDef_t *pI2Cx)
 {
