@@ -185,10 +185,16 @@ void I2C_Init(I2C_Handle_t *pI2CHandle)
 {
 	uint32_t tempreg = 0;
 
+	/*Enable the clock for the i2cx peripheral*/
+	I2C_PeriClockControl(pI2CHandle->pI2Cx, ENABLE);
+
+
+	/*Peripheral Enable*/
+	I2C_PeripheralControl(I2C1, ENABLE);
+
 
 	/*ACK control bit*/
-	tempreg |= (pI2CHandle->I2C_Config.I2C_AckControl << I2C_CR1_ACK);
-	pI2CHandle->pI2Cx->CR1 = tempreg;
+	pI2CHandle->pI2Cx->CR1 |= (1 << I2C_CR1_ACK);
 
 
 	/*Configure the FREQ field of CR2*/
