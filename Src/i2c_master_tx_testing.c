@@ -111,6 +111,6 @@ int main(void)
 		delay();
 
 		/*Send data to slave*/
-		I2C_MasterSendData(&I2C1Handle, &sendData, 1, SLAVE_ADDR);
+		I2C_MasterSendData(&I2C1Handle, &sendData, 1, SLAVE_ADDR, I2C_RS_DISABLE);
 	}
 }

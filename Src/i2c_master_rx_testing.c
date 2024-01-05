@@ -112,7 +112,7 @@ int main(void)
 		delay();
 
 		/*Receive data from slave*/
-		I2C_MasterReceiveData(&I2C1Handle, &ReceiveData, 1, SLAVE_ADDR);
+		I2C_MasterReceiveData(&I2C1Handle, &ReceiveData, 1, SLAVE_ADDR, I2C_RS_DISABLE);
 
 		temp = ReceiveData;
 
