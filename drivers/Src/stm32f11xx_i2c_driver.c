@@ -390,8 +390,6 @@ void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t
 
 		/*Read the data from data register in to buffer*/
 		*pRxBuffer = pI2CHandle->pI2Cx->DR;
-
-		return;
 	}
 
 
