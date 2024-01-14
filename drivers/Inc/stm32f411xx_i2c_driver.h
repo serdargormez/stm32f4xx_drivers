@@ -26,8 +26,16 @@ typedef struct
 /*Handle structure for I2Cx peripheral*/
 typedef struct
 {
-	I2C_RegDef_t *pI2Cx;
-	I2C_Config_t I2C_Config;
+	I2C_RegDef_t 	*pI2Cx;
+	I2C_Config_t 	I2C_Config;
+	uint8_t 	  	*pTxBuffer;		/*To store the app. Tx buffer address*/
+	uint8_t 	  	*pRxBuffer;		/*To store the app. Rx buffer address*/
+	uint32_t 	  	TxLen;			/*To store Tx Len*/
+	uint32_t 	  	RxLen;			/*To store Rx Len*/
+	uint8_t 	  	TxRxState;		/*To store communication state*/
+	uint8_t		  	DevAddr;		/*To store slave/device address */
+	uint32_t	  	RxSize;			/*To store Rx size*/
+	uint8_t		  	Rs;				/*To store repeated start value*/
 
 }I2C_Handle_t;
 
@@ -69,8 +77,22 @@ typedef struct
 
 /*Repeated Start*/
 
-#define I2C_RS_ENABLE			SET
-#define I2C_RS_DISABLE			RESET
+#define I2C_RS_ENABLE						SET
+#define I2C_RS_DISABLE						RESET
+
+
+/*I2C application state*/
+
+#define I2C_READY							0
+#define I2C_BUSY_IN_RX						1
+#define I2C_BUSY_IN_TX						2
+
+
+/*I2C application event macros*/
+
+#define I2C_EV_TX_CMPLT						0
+#define I2C_EV_RX_CMPLT						1
+#define I2C_EV_STOP							2
 
 
 /*Peripheral clock setup */
@@ -89,6 +111,13 @@ void I2C_DeInit(I2C_RegDef_t *pI2Cx);
 void I2C_MasterSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Rs);
 void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Rs);
 
+uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Rs);
+uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Rs);
+
+
+void I2C_CloseSendData(I2C_Handle_t *pI2CHandle);
+void I2C_CloseReceiveData(I2C_Handle_t *pI2CHandle);
+
 
 /*Other peripheral Control API's*/
 
@@ -105,7 +134,8 @@ uint8_t I2C_GetFlagStatus(I2C_RegDef_t *pI2Cx, uint32_t FlagName);
 
 void I2C_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi);
 void I2C_IRQ_PriortyConfig(uint8_t IRQNumber, uint32_t IRQPriorty);
-
+void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle);
+void I2C_ER_IRQHandling(I2C_Handle_t *pI2CHandle);
 
 /*Application callback*/
 
