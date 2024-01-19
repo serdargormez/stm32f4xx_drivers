@@ -15,10 +15,11 @@ uint8_t APB1_PreScaler[4] = {2,4,8,16};
 /*Helper functions*/
 
 static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2Cx);
-static void I2C_GenerateStopCondition(I2C_RegDef_t *pI2Cx);
 static void I2C_ExecuteAddressPhaseWrite(I2C_RegDef_t *pI2Cx, uint8_t SlaveAddr);
 static void I2C_ExecuteAddressPhaseRead(I2C_RegDef_t *pI2Cx, uint8_t SlaveAddr);
 static void I2C_ClearAddrFlag(I2C_RegDef_t *pI2Cx);
+static void I2CMasterHandleTXEInterrupt(I2C_Handle_t *pI2CHandle);
+static void I2CMasterHandleRXNEInterrupt(I2C_Handle_t *pI2CHandle);
 
 
 static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2Cx)
@@ -27,7 +28,7 @@ static void I2C_GenerateStartCondition(I2C_RegDef_t *pI2Cx)
 }
 
 
-static void I2C_GenerateStopCondition(I2C_RegDef_t *pI2Cx)
+void I2C_GenerateStopCondition(I2C_RegDef_t *pI2Cx)
 {
 	pI2Cx->CR1 |= (1 << I2C_CR1_STOP);
 }
@@ -461,6 +462,152 @@ void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t
 }
 
 
+uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Rs)
+{
+	uint8_t busystate = pI2CHandle->TxRxState;
+
+	if( (busystate != I2C_BUSY_IN_TX) && (busystate != I2C_BUSY_IN_RX) )
+	{
+		pI2CHandle->pTxBuffer = pTxBuffer;
+		pI2CHandle->TxLen = Len;
+		pI2CHandle->TxRxState = I2C_BUSY_IN_TX;
+		pI2CHandle->DevAddr = SlaveAddr;
+		pI2CHandle->Rs = Rs;
+
+
+		/*Implemet code to generate START condition*/
+		I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+
+		/*Implement the code to enable ITBUFEN control bit*/
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITBUFEN);
+
+		/*Implement the code to enable ITEVTEN control bit*/
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITEVTEN);
+
+		/*Implement the code to enable ITERREN control bit*/
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITERREN);
+	}
+
+	return busystate;
+}
+
+
+uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t Len, uint8_t SlaveAddr, uint8_t Rs)
+{
+	uint8_t busystate = pI2CHandle->TxRxState;
+
+	if( (busystate != I2C_BUSY_IN_TX) && (busystate != I2C_BUSY_IN_RX) )
+	{
+		pI2CHandle->pRxBuffer = pRxBuffer;
+		pI2CHandle->RxLen = Len;
+		pI2CHandle->RxSize = Len;
+		pI2CHandle->TxRxState = I2C_BUSY_IN_RX;
+		pI2CHandle->DevAddr = SlaveAddr;
+		pI2CHandle->Rs = Rs;
+
+		/*Implemet code to generate START condition*/
+		I2C_GenerateStartCondition(pI2CHandle->pI2Cx);
+
+		/*Implement the code to enable ITBUFEN control bit*/
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITBUFEN);
+
+		/*Implement the code to enable ITEVTEN control bit*/
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITEVTEN);
+
+		/*Implement the code to enable ITERREN control bit*/
+		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITERREN);
+	}
+
+	return busystate;
+}
+
+
+static void I2CMasterHandleTXEInterrupt(I2C_Handle_t *pI2CHandle)
+{
+	if(pI2CHandle->TxLen > 0)
+	{
+		/*Load the data in to DR*/
+		pI2CHandle->pI2Cx->DR = *(pI2CHandle->pTxBuffer);
+
+		/*Decrement the TxLen*/
+		pI2CHandle->TxLen--;
+
+		/*Increment the buffer address*/
+		pI2CHandle->pTxBuffer++;
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+}
+
+
+static void I2CMasterHandleRXNEInterrupt(I2C_Handle_t *pI2CHandle)
+{
+	/*We have to do the data reception*/
+	if(pI2CHandle->RxSize == 1)
+	{
+		/*Read DR*/
+		*pI2CHandle->pRxBuffer = pI2CHandle->pI2Cx->DR;
+
+		pI2CHandle->RxLen--;
+	}
+
+	else if(pI2CHandle->RxSize > 1)
+	{
+		if(pI2CHandle->RxLen == 2)
+		{
+			/*clear the ACK bit*/
+			I2C_ManageAcking(pI2CHandle->pI2Cx, DISABLE);
+		}
+
+		else
+		{
+			/*Do nothing*/
+		}
+
+		/*Read DR*/
+		*pI2CHandle->pRxBuffer = pI2CHandle->pI2Cx->DR;
+		pI2CHandle->pRxBuffer++;
+		pI2CHandle->RxLen--;
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+	if(pI2CHandle->RxLen == 0)
+	{
+		/*Close the I2C data reception and notify the application*/
+
+		/*Generate the STOP condition*/
+		if(pI2CHandle->Rs == I2C_RS_DISABLE)
+		{
+			I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
+		}
+
+		else
+		{
+			/*Do nothing*/
+		}
+
+		/*Close the I2C Rx*/
+		I2C_CloseReceiveData(pI2CHandle);
+
+		/*Notify the application*/
+		I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_RX_CMPLT);
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+}
+
+
 void I2C_ManageAcking(I2C_RegDef_t *pI2Cx, uint8_t EnOrDi)
 {
 	if(EnOrDi == I2C_ACK_ENABLE)
@@ -491,3 +638,426 @@ uint8_t I2C_GetFlagStatus(I2C_RegDef_t *pI2Cx, uint32_t FlagName)
 
 	return FLAG_RESET;
 }
+
+
+void I2C_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
+{
+	if(EnOrDi == ENABLE)
+	{
+		if(IRQNumber <= 31)
+		{
+			*NVIC_ISER0 |= (1 << IRQNumber);
+		}
+
+		else if(IRQNumber > 31 && IRQNumber < 64)
+		{
+			*NVIC_ISER1 |= (1 << (IRQNumber % 32));
+		}
+
+		else if(IRQNumber >= 64 && IRQNumber < 96)
+		{
+			*NVIC_ISER2 |= (1 << (IRQNumber % 64));
+		}
+	}
+
+	else
+	{
+		if(IRQNumber <= 31)
+		{
+			*NVIC_ICER0 |= (1 << IRQNumber);
+		}
+
+		else if(IRQNumber > 31 && IRQNumber < 64)
+		{
+			*NVIC_ICER1 |= (1 << (IRQNumber % 32));
+		}
+
+		else if(IRQNumber >= 64 && IRQNumber < 96)
+		{
+			*NVIC_ICER2 |= (1 << (IRQNumber % 64));
+		}
+	}
+}
+
+
+void I2C_IRQ_PriortyConfig(uint8_t IRQNumber, uint32_t IRQPriorty)
+{
+	uint8_t iprx = IRQNumber / 4;
+	uint8_t iprx_section = IRQNumber % 4;
+	uint8_t shift_amount = (8 * iprx_section) + (8 - NO_PR_BITS_IMPLEMENTED);
+	*(NVIC_PR_BASE_ADDR + iprx) |= (IRQPriorty << (shift_amount));
+}
+
+
+void I2C_CloseSendData(I2C_Handle_t *pI2CHandle)
+{
+	/*Implement the code to disable ITBUFEN Control bit*/
+	pI2CHandle->pI2Cx->CR2 &= ~(1 << I2C_CR2_ITBUFEN);
+
+	/*Implement the code to disable ITEVTEN Control bit*/
+	pI2CHandle->pI2Cx->CR2 &= ~(1 << I2C_CR2_ITEVTEN);
+
+	pI2CHandle->pTxBuffer = NULL;
+	pI2CHandle->TxLen = 0;
+	pI2CHandle->TxRxState = I2C_READY;
+}
+
+
+void I2C_CloseReceiveData(I2C_Handle_t *pI2CHandle)
+{
+	/*Implement the code to disable ITBUFEN Control bit*/
+	pI2CHandle->pI2Cx->CR2 &= ~(1 << I2C_CR2_ITBUFEN);
+
+	/*Implement the code to disable ITEVTEN Control bit*/
+	pI2CHandle->pI2Cx->CR2 &= ~(1 << I2C_CR2_ITEVTEN);
+
+	pI2CHandle->RxSize = 0;
+	pI2CHandle->RxLen = 0;
+	pI2CHandle->pRxBuffer = NULL;
+	pI2CHandle->TxRxState = I2C_READY;
+
+	if(pI2CHandle->I2C_Config.I2C_AckControl == I2C_ACK_ENABLE)
+	{
+		I2C_ManageAcking(pI2CHandle->pI2Cx, ENABLE);
+	}
+}
+
+
+void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
+{
+	/*Interrupt handling for both master and slave mode of a device*/
+
+	uint32_t temp1, temp2, temp3;
+
+	temp1 = pI2CHandle->pI2Cx->CR2 & (1 << I2C_CR2_ITEVTEN);
+	temp2 = pI2CHandle->pI2Cx->CR2 & (1 << I2C_CR2_ITBUFEN);
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_SB);
+
+	/*Handle for interrupt generated by SB event*/
+	/*SB flag is only applicable in master mode*/
+	if(temp1 && temp3)
+	{
+		/*Executed address phase*/
+		if(pI2CHandle->TxRxState == I2C_BUSY_IN_TX)
+		{
+			I2C_ExecuteAddressPhaseWrite(pI2CHandle->pI2Cx, pI2CHandle->DevAddr);
+		}
+
+		else if(pI2CHandle->TxRxState == I2C_BUSY_IN_RX)
+		{
+			I2C_ExecuteAddressPhaseRead(pI2CHandle->pI2Cx, pI2CHandle->DevAddr);
+		}
+
+		else
+		{
+			/*Do nothing*/
+		}
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_ADDR);
+
+	/*Handle for interrupt generated by ADDR event*/
+	if(temp1 && temp3)
+	{
+		if(pI2CHandle->pI2Cx->SR2 & (1 << I2C_SR2_MSL))
+		{
+			if(pI2CHandle->TxRxState == I2C_BUSY_IN_TX)
+			{
+				I2C_ClearAddrFlag(pI2CHandle->pI2Cx);
+			}
+
+			else if(pI2CHandle->TxRxState == I2C_BUSY_IN_RX)
+			{
+				if(pI2CHandle->RxSize == 1)
+				{
+					I2C_ManageAcking(pI2CHandle->pI2Cx, DISABLE);
+					I2C_ClearAddrFlag(pI2CHandle->pI2Cx);
+				}
+			}
+
+			else
+			{
+				/*Do nothing*/
+			}
+		}
+
+		else
+		{
+
+		}
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_BTF);
+
+	/*Handle for interrupt generated by BTF(Byte transfer finished) event*/
+	if(temp1 && temp3)
+	{
+		/*BTF flag is set*/
+		if(pI2CHandle->TxRxState == I2C_BUSY_IN_TX)
+		{
+			/*Make sure TXE also set*/
+			if(pI2CHandle->pI2Cx->SR1 & (1<< I2C_SR1_TXE))
+			{
+				/*BTF, TXE = 1*/
+				if(pI2CHandle->TxLen == 0)
+				{
+					/*Generate STOP condition*/
+					if(pI2CHandle->Rs == I2C_RS_DISABLE)
+					{
+						I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
+					}
+
+					else
+					{
+						/*Do nothing*/
+					}
+
+					/*Reset all the member element of the handle structure*/
+					I2C_CloseSendData(pI2CHandle);
+
+					/*Notify the application about transmission complete*/
+					I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_TX_CMPLT);
+				}
+
+				else
+				{
+					/*Do nothing*/
+				}
+			}
+
+			else
+			{
+				/*Do nothing*/
+			}
+		}
+
+		else if(pI2CHandle->TxRxState == I2C_BUSY_IN_RX)
+		{
+			/*Do nothing*/
+		}
+
+		else
+		{
+			/*Do nothing*/
+		}
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_STOPF);
+
+	/*Handle for interrupt generated by STOPF event*/
+	/*Stop detection flag is applicable only slave mode.*/
+	if(temp1 && temp3)
+	{
+		/*STOPF flag is set*/
+		/*Clear the STOPF*/
+		pI2CHandle->pI2Cx->CR1 |= 0x0000;
+
+		/*Notify the application that stop is detected*/
+		I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_STOP);
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_TXE);
+
+	/*Handle for interrupt generated by TXE event*/
+	if(temp1 && temp2 && temp3)
+	{
+		/*TXE flag is set*/
+		/*Check for the device mod*/
+		if(pI2CHandle->pI2Cx->SR2 & (1 << I2C_SR2_MSL))
+		{
+			/*Device is master*/
+
+			/*We have to do data transmission*/
+			if(pI2CHandle->TxRxState == I2C_BUSY_IN_TX)
+			{
+				I2CMasterHandleTXEInterrupt(pI2CHandle);
+			}
+
+			else
+			{
+				/*Do nothing*/
+			}
+		}
+
+		else
+		{
+			/*Do nothing*/
+		}
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+	temp3 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_RXNE);
+
+	/*Handle for interrupt generated by RXNE event*/
+	if(temp1 && temp2 && temp3)
+	{
+		/*RXNE flag is set*/
+		if(pI2CHandle->pI2Cx->SR2 & (1 << I2C_SR2_MSL))
+		{
+			/*Device is master*/
+
+			if(pI2CHandle->TxRxState == I2C_BUSY_IN_RX)
+			{
+				I2CMasterHandleRXNEInterrupt(pI2CHandle);
+			}
+
+			else
+			{
+				/*Do nothing*/
+			}
+		}
+
+		else
+		{
+			/*Do nothing*/
+		}
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+}
+
+
+void I2C_ER_IRQHandling(I2C_Handle_t *pI2CHandle)
+{
+	uint32_t temp1, temp2;
+
+	/*Know the status of ITERREN control bit in the CR2*/
+	temp2 = pI2CHandle->pI2Cx->CR2 & (1 << I2C_CR2_ITERREN);
+
+
+/***********************************Check for Bus error**********************************/
+	temp1 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_BERR);
+
+	if(temp1 && temp2)
+	{
+		/*This is Bus error*/
+		/*Implement the code to clear the buss error flag*/
+		pI2CHandle->pI2Cx->SR1 &= ~(1 << I2C_SR1_BERR);
+
+		/*Notify the application about the error*/
+		I2C_ApplicationEventCallback(pI2CHandle, I2C_ERROR_BERR);
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+/**********************************Check for Arbitration lost error**********************/
+	temp1 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_ARLO);
+
+	if(temp1 && temp2)
+	{
+		/*This is Arbitration lost error*/
+		/*Implement the code to clear the Arbitration lost error flag*/
+		pI2CHandle->pI2Cx->SR1 &= ~(1 << I2C_SR1_ARLO);
+
+		/*Notify the application about the error*/
+		I2C_ApplicationEventCallback(pI2CHandle, I2C_ERROR_ARLO);
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+/**********************************Check for ACK Failure error**************************/
+	temp1 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_AF);
+
+	if(temp1 && temp2)
+	{
+		/*This is ACK Failure error*/
+		/*Implement the code to clear the ACK Failure error flag*/
+		pI2CHandle->pI2Cx->SR1 &= ~(1 << I2C_SR1_AF);
+
+		/*Notify the application about the error*/
+		I2C_ApplicationEventCallback(pI2CHandle, I2C_ERROR_AF);
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+/**********************************Check for Overrun/Underrun error**************************/
+	temp1 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_OVR);
+
+	if(temp1 && temp2)
+	{
+		/*This is Overrun/Underrun error*/
+		/*Implement the code to clear the Overrun/Underrun error flag*/
+		pI2CHandle->pI2Cx->SR1 &= ~(1 << I2C_SR1_OVR);
+
+		/*Notify the application about the error*/
+		I2C_ApplicationEventCallback(pI2CHandle, I2C_ERROR_OVR);
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+
+
+/**********************************Check for Time out error**************************/
+	temp1 = pI2CHandle->pI2Cx->SR1 & (1 << I2C_SR1_TIMEOUT);
+
+	if(temp1 && temp2)
+	{
+		/*This is Time out error*/
+		/*Implement the code to clear the Time out error flag*/
+		pI2CHandle->pI2Cx->SR1 &= ~(1 << I2C_SR1_TIMEOUT);
+
+		/*Notify the application about the error*/
+		I2C_ApplicationEventCallback(pI2CHandle, I2C_ERROR_TIMEOUT);
+	}
+
+	else
+	{
+		/*Do nothing*/
+	}
+}
+
+
+
+
+
+
+
+
+
