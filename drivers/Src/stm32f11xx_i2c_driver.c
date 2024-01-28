@@ -608,6 +608,18 @@ static void I2CMasterHandleRXNEInterrupt(I2C_Handle_t *pI2CHandle)
 }
 
 
+void I2C_SlaveSendData(I2C_RegDef_t *pI2Cx, uint8_t data)
+{
+	pI2Cx->DR = data;
+}
+
+
+uint8_t I2C_SlaveReceiveData(I2C_RegDef_t *pI2Cx)
+{
+	return (uint8_t)pI2Cx->DR;
+}
+
+
 void I2C_ManageAcking(I2C_RegDef_t *pI2Cx, uint8_t EnOrDi)
 {
 	if(EnOrDi == I2C_ACK_ENABLE)
@@ -620,6 +632,24 @@ void I2C_ManageAcking(I2C_RegDef_t *pI2Cx, uint8_t EnOrDi)
 	{
 		/*Disable the ACK*/
 		pI2Cx->CR1 &= ~(1 << I2C_CR1_ACK);
+	}
+}
+
+
+void I2C_SlaveEnableDisableCallbackEvents(I2C_RegDef_t *pI2Cx, uint8_t EnOrDi)
+{
+	if(EnOrDi == ENABLE)
+	{
+		pI2Cx->CR2 |= (1 << I2C_CR2_ITEVTEN);
+		pI2Cx->CR2 |= (1 << I2C_CR2_ITBUFEN);
+		pI2Cx->CR2 |= (1 << I2C_CR2_ITERREN);
+	}
+
+	else
+	{
+		pI2Cx->CR2 &= ~(1 << I2C_CR2_ITEVTEN);
+		pI2Cx->CR2 &= ~(1 << I2C_CR2_ITBUFEN);
+		pI2Cx->CR2 &= ~(1 << I2C_CR2_ITERREN);
 	}
 }
 
@@ -790,7 +820,7 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 
 		else
 		{
-
+			/*Do nothing*/
 		}
 	}
 
@@ -906,7 +936,16 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 
 		else
 		{
-			/*Do nothing*/
+			/*Slave*/
+			if(pI2CHandle->pI2Cx->SR2 & (1 << I2C_SR2_TRA))
+			{
+				I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_DATA_REQ);
+			}
+
+			else
+			{
+				/*Do nothing*/
+			}
 		}
 	}
 
@@ -939,7 +978,16 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 
 		else
 		{
-			/*Do nothing*/
+			/*Slave*/
+			if(!(pI2CHandle->pI2Cx->SR2 & (1 << I2C_SR2_TRA)))
+			{
+				I2C_ApplicationEventCallback(pI2CHandle, I2C_EV_DATA_RCV);
+			}
+
+			else
+			{
+				/*Do nothing*/
+			}
 		}
 	}
 
