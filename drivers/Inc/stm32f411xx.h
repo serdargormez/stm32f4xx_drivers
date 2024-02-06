@@ -204,6 +204,20 @@ typedef struct
 }I2C_RegDef_t;
 
 
+/*USART*/
+typedef struct
+{
+	__vo uint32_t SR;
+	__vo uint32_t DR;
+	__vo uint32_t BRR;
+	__vo uint32_t CR1;
+	__vo uint32_t CR2;
+	__vo uint32_t CR3;
+	__vo uint32_t GTPR;
+
+}USART_RegDef_t;
+
+
 /*Peripheral definitions ( Peripheral base addresses typecasted to xxx_RegDef_t)*/
 
 #define GPIOA 					( (GPIO_RegDef_t*)GPIOA_BASEADDR )
@@ -222,6 +236,10 @@ typedef struct
 #define I2C1					( (I2C_RegDef_t*)I2C1_BASEADDR )
 #define I2C2					( (I2C_RegDef_t*)I2C2_BASEADDR )
 #define I2C3					( (I2C_RegDef_t*)I2C3_BASEADDR )
+
+#define USART1					( (USART_RegDef_t*)USART1_BASEADDR )
+#define USART2					( (USART_RegDef_t*)USART2_BASEADDR )
+#define USART6					( (USART_RegDef_t*)USART6_BASEADDR )
 
 #define RCC						( (RCC_RegDef_t*)RCC_BASEADDR )
 #define EXTI					( (EXTI_RegDef_t*)EXTI_BASEADDR )
@@ -468,6 +486,7 @@ typedef struct
 #include "stm32f411xx_gpio_driver.h"
 #include "stm32f411xx_spi_driver.h"
 #include "stm32f411xx_i2c_driver.h"
+#include "stm32f411xx_usart_driver.h"
 
 
 #endif /* INC_STM32F411XX_H_ */
