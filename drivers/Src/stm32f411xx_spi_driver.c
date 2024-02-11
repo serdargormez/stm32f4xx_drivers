@@ -121,6 +121,11 @@ void SPI_Init(SPI_Handle_t *pSPIHandle)
 		tempreg |= (1 << SPI_CR1_RXONLY);
 	}
 
+	else
+	{
+		//Do nothing
+	}
+
 	//Configure the SPI serial clock speed (baud rate)
 	tempreg |= (pSPIHandle->SPIConfig.SPI_SclkSpeed << SPI_CR1_BR);
 
@@ -319,6 +324,11 @@ uint8_t SPI_SendData_IT(SPI_Handle_t *pSPIHandle, uint8_t *pTxBuffer, uint32_t L
 
 	}
 
+	else
+	{
+		//Do nothing
+	}
+
 	return state;
 }
 
@@ -340,6 +350,11 @@ uint8_t SPI_ReceiveData_IT(SPI_Handle_t *pSPIHandle, uint8_t *pRxBuffer, uint32_
 		//Enable the TXEIE control bit to get interrupt whenever TXE flag is set in SR
 		pSPIHandle->pSPIx->CR2 |= (1 << SPI_CR2_RXNEIE);
 
+	}
+
+	else
+	{
+		//Do nothing
 	}
 
 	return state;
@@ -367,6 +382,11 @@ void SPI_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
 		{
 			*NVIC_ISER2 |= (1 << (IRQNumber % 64));
 		}
+
+		else
+		{
+			//Do nothing
+		}
 	}
 
 	else
@@ -384,6 +404,11 @@ void SPI_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
 		else if(IRQNumber >= 64 && IRQNumber < 96)
 		{
 			*NVIC_ICER2 |= (1 << (IRQNumber % 64));
+		}
+
+		else
+		{
+			//Do nothing
 		}
 	}
 }
@@ -411,6 +436,11 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle)
 		spi_txe_interrupt_handle(pSPIHandle);
 	}
 
+	else
+	{
+		//Do nothing
+	}
+
 	//Check for RXNE
 	temp1 = pSPIHandle->pSPIx->SR & (1 << SPI_SR_RXNE);
 	temp2 = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_RXNEIE);
@@ -421,6 +451,11 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle)
 		spi_rxne_interrupt_handle(pSPIHandle);
 	}
 
+	else
+	{
+		//Do nothing
+	}
+
 	//Check for OVR flag
 	temp1 = pSPIHandle->pSPIx->SR & (1 << SPI_SR_OVR);
 	temp2 = pSPIHandle->pSPIx->CR2 & (1 << SPI_CR2_ERRIE);
@@ -429,6 +464,11 @@ void SPI_IRQHandling(SPI_Handle_t *pSPIHandle)
 	{
 		//Handle OVR error
 		spi_ovr_err_interrupt_handle(pSPIHandle);
+	}
+
+	else
+	{
+		//Do nothing
 	}
 
 
@@ -468,6 +508,11 @@ static void spi_txe_interrupt_handle(SPI_Handle_t *pSPIHandle)
 		SPI_CloseTransmission(pSPIHandle);
 
 	}
+
+	else
+	{
+		//Do nothing
+	}
 }
 
 
@@ -501,6 +546,11 @@ static void spi_rxne_interrupt_handle(SPI_Handle_t *pSPIHandle)
 
 	}
 
+	else
+	{
+		//Do nothing
+	}
+
 }
 
 
@@ -512,6 +562,11 @@ static void spi_ovr_err_interrupt_handle(SPI_Handle_t *pSPIHandle)
 	{
 		temp = pSPIHandle->pSPIx->DR;
 		temp = pSPIHandle->pSPIx->SR;
+	}
+
+	else
+	{
+		//Do nothing
 	}
 
 	(void)temp;

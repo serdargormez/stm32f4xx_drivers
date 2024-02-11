@@ -24,7 +24,7 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t EnOrDi)
 			GPIOB_PCLK_EN();
 		}
 
-		if(pGPIOx == GPIOC)
+		else if(pGPIOx == GPIOC)
 		{
 			GPIOC_PCLK_EN();
 		}
@@ -34,7 +34,7 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t EnOrDi)
 			GPIOD_PCLK_EN();
 		}
 
-		if(pGPIOx == GPIOE)
+		else if(pGPIOx == GPIOE)
 		{
 			GPIOE_PCLK_EN();
 		}
@@ -42,6 +42,11 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t EnOrDi)
 		else if(pGPIOx == GPIOH)
 		{
 			GPIOH_PCLK_EN();
+		}
+
+		else
+		{
+			//Do nothing
 		}
 	}
 
@@ -57,7 +62,7 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t EnOrDi)
 			GPIOB_PCLK_DI();
 		}
 
-		if(pGPIOx == GPIOC)
+		else if(pGPIOx == GPIOC)
 		{
 			GPIOC_PCLK_DI();
 		}
@@ -67,7 +72,7 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t EnOrDi)
 			GPIOD_PCLK_DI();
 		}
 
-		if(pGPIOx == GPIOE)
+		else if(pGPIOx == GPIOE)
 		{
 			GPIOE_PCLK_DI();
 		}
@@ -75,6 +80,11 @@ void GPIO_PeriClockControl(GPIO_RegDef_t *pGPIOx, uint8_t EnOrDi)
 		else if(pGPIOx == GPIOH)
 		{
 			GPIOH_PCLK_DI();
+		}
+
+		else
+		{
+			//Do nothing
 		}
 	}
 }
@@ -122,6 +132,11 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle)
 			EXTI->FTSR |= (1 << pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber);
 		}
 
+		else
+		{
+			//Do nothing
+		}
+
 		/*Configure the GPIO port slection in SYSCFG_EXTICR Reg*/
 		uint8_t temp1 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber / 4;
 		uint8_t temp2 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber % 4;
@@ -165,6 +180,11 @@ void GPIO_Init(GPIO_Handle_t *pGPIOHandle)
 		temp2 = pGPIOHandle->GPIO_PinConfig.GPIO_PinNumber % 8;
 		pGPIOHandle->pGPIOx->AFR[temp1] &= ~(0xF << (4 * temp2));
 		pGPIOHandle->pGPIOx->AFR[temp1] |= (pGPIOHandle->GPIO_PinConfig.GPIO_PinAltFunMode << (4 * temp2));
+	}
+
+	else
+	{
+		//Do nothing
 	}
 }
 
@@ -274,6 +294,11 @@ void GPIO_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
 		{
 			*NVIC_ISER2 |= (1 << (IRQNumber % 64));
 		}
+
+		else
+		{
+			//Do nothing
+		}
 	}
 
 	else
@@ -292,6 +317,11 @@ void GPIO_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
 		{
 			*NVIC_ICER2 |= (1 << (IRQNumber % 64));
 		}
+
+		else
+		{
+			//Do nothing
+		}
 	}
 }
 
@@ -308,6 +338,11 @@ void GPIO_IRQHandling(uint8_t PinNumber)
 	if(EXTI->PR & (1 << PinNumber))
 	{
 		EXTI->PR |= (1 << PinNumber);
+	}
+
+	else
+	{
+		//Do nothing
 	}
 }
 

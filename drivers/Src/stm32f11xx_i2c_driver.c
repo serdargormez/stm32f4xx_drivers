@@ -351,6 +351,11 @@ void I2C_MasterSendData(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8_t Le
 	{
 		I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
 	}
+
+	else
+	{
+		//Do nothing
+	}
 }
 
 
@@ -394,6 +399,10 @@ void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t
 			I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
 		}
 
+		else
+		{
+			//Do nothing
+		}
 
 		/*Read the data from data register in to buffer*/
 		*pRxBuffer = pI2CHandle->pI2Cx->DR;
@@ -425,6 +434,11 @@ void I2C_MasterReceiveData(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, uint8_t
 				if(Rs == I2C_RS_DISABLE)
 				{
 					I2C_GenerateStopCondition(pI2CHandle->pI2Cx);
+				}
+
+				else
+				{
+					//Do nothing
 				}
 			}
 
@@ -488,6 +502,11 @@ uint8_t I2C_MasterSendDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pTxBuffer, uint8
 		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITERREN);
 	}
 
+	else
+	{
+		//Do nothing
+	}
+
 	return busystate;
 }
 
@@ -516,6 +535,11 @@ uint8_t I2C_MasterReceiveDataIT(I2C_Handle_t *pI2CHandle, uint8_t *pRxBuffer, ui
 
 		/*Implement the code to enable ITERREN control bit*/
 		pI2CHandle->pI2Cx->CR2 |= (1 << I2C_CR2_ITERREN);
+	}
+
+	else
+	{
+		//Do nothing
 	}
 
 	return busystate;
@@ -688,6 +712,11 @@ void I2C_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
 		{
 			*NVIC_ISER2 |= (1 << (IRQNumber % 64));
 		}
+
+		else
+		{
+			//Do nothing
+		}
 	}
 
 	else
@@ -705,6 +734,11 @@ void I2C_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
 		else if(IRQNumber >= 64 && IRQNumber < 96)
 		{
 			*NVIC_ICER2 |= (1 << (IRQNumber % 64));
+		}
+
+		else
+		{
+			//Do nothing
 		}
 	}
 }
@@ -749,6 +783,11 @@ void I2C_CloseReceiveData(I2C_Handle_t *pI2CHandle)
 	if(pI2CHandle->I2C_Config.I2C_AckControl == I2C_ACK_ENABLE)
 	{
 		I2C_ManageAcking(pI2CHandle->pI2Cx, ENABLE);
+	}
+
+	else
+	{
+		//Do nothing
 	}
 }
 
@@ -809,6 +848,11 @@ void I2C_EV_IRQHandling(I2C_Handle_t *pI2CHandle)
 				{
 					I2C_ManageAcking(pI2CHandle->pI2Cx, DISABLE);
 					I2C_ClearAddrFlag(pI2CHandle->pI2Cx);
+				}
+
+				else
+				{
+					//Do nothing
 				}
 			}
 
