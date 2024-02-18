@@ -23,6 +23,12 @@ typedef struct
 {
 	USART_RegDef_t 	*pUSARTx;
 	USART_Config_t 	USART_Config;
+	uint8_t 	  	*pTxBuffer;		/*To store the app. Tx buffer address*/
+	uint8_t 	  	*pRxBuffer;		/*To store the app. Rx buffer address*/
+	uint32_t 	  	TxLen;			/*To store Tx Len*/
+	uint32_t 	  	RxLen;			/*To store Rx Len*/
+	uint8_t 	  	TxBusyState;	/*To store communication TX state*/
+	uint8_t 	  	RxBusyState;	/*To store communication RX state*/
 
 }USART_Handle_t;
 
@@ -79,6 +85,27 @@ typedef struct
 #define USART_HW_FLOW_CTRL_CTS_RTS			3
 
 
+/*USART related status flag definitions*/
+
+#define USART_FLAG_PE						(1 << USART_SR_PE)
+#define USART_FLAG_FE						(1 << USART_SR_FE)
+#define USART_FLAG_NF						(1 << USART_SR_NF)
+#define USART_FLAG_ORE						(1 << USART_SR_ORE)
+#define USART_FLAG_IDLE						(1 << USART_SR_IDLE)
+#define USART_FLAG_RXNE						(1 << USART_SR_RXNE)
+#define USART_FLAG_TC						(1 << USART_SR_TC)
+#define USART_FLAG_TXE						(1 << USART_SR_TXE)
+#define USART_FLAG_LBD						(1 << USART_SR_LBD)
+#define USART_FLAG_CTS						(1 << USART_SR_CTS)
+
+
+/*USART application state*/
+
+#define USART_READY							0
+#define USART_BUSY_IN_RX					1
+#define USART_BUSY_IN_TX					2
+
+
 /******************************************************************************************
  *								APIs supported by this driver
  *		 For more information about the APIs check the function definitions
@@ -97,8 +124,8 @@ void USART_DeInit(USART_RegDef_t *pUSARTx);
 
 /*Data Send and Receive*/
 
-void USART_SendData(USART_RegDef_t *pUSARTx,uint8_t *pTxBuffer, uint32_t Len);
-void USART_ReceiveData(USART_RegDef_t *pUSARTx, uint8_t *pRxBuffer, uint32_t Len);
+void USART_SendData(USART_Handle_t *pUSARTHandle, uint8_t *pTxBuffer, uint32_t Len);
+void USART_ReceiveData(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
 uint8_t USART_SendDataIT(USART_Handle_t *pUSARTHandle,uint8_t *pTxBuffer, uint32_t Len);
 uint8_t USART_ReceiveDataIT(USART_Handle_t *pUSARTHandle, uint8_t *pRxBuffer, uint32_t Len);
 
@@ -115,6 +142,7 @@ void USART_IRQHandling(USART_Handle_t *pHandle);
 void USART_PeripheralControl(USART_RegDef_t *pUSARTx, uint8_t EnOrDi);
 uint8_t USART_GetFlagStatus(USART_RegDef_t *pUSARTx , uint32_t FlagName);
 void USART_ClearFlag(USART_RegDef_t *pUSARTx, uint16_t StatusFlagName);
+void USART_SetBaudRate(USART_RegDef_t *pUSARTx, uint32_t BaudRate);
 
 
 /*Application callback*/
