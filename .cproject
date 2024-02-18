@@ -60,11 +60,11 @@
 							<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec.1662478939" name="MCU Output Converter Motorola S-rec with symbols" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.objcopy.symbolsrec"/>
 						</toolChain>
 					</folderInfo>
-					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.198464626.1938692522" name="i2c_slave_rx_testing.c" rcbsApplicability="disable" resourcePath="Src/i2c_slave_rx_testing.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1383545779.1110052205">
-						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1383545779.1110052205" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1383545779"/>
+					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.198464626.56033382" name="i2c_slave_tx_testing.c" rcbsApplicability="disable" resourcePath="Src/i2c_slave_tx_testing.c" toolsToInvoke="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1383545779.1571414446">
+						<tool id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1383545779.1571414446" name="MCU GCC Compiler" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.1383545779"/>
 					</fileInfo>
 					<sourceEntries>
-						<entry excluding="Src/i2c_slave_rx_testing.c|Src/i2c_master_rx_testing_it.c|Src/i2c_master_tx_testing_it.c|Src/i2c_master_rx_testin_it.c|Src/i2c_master_tx_testing.c|Src/spi_rx_testing.c|Src/spi_receive_it.c|Src/spi_tx_testing.c|Src/spi_tx_it_testing.c|Src/main.c|Src/i2c_master_rx_testing.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
+						<entry excluding="Src/i2c_slave_tx_testing.c|Src/i2c_slave_rx_testing.c|Src/i2c_master_rx_testing_it.c|Src/i2c_master_tx_testing_it.c|Src/i2c_master_rx_testin_it.c|Src/i2c_master_tx_testing.c|Src/spi_rx_testing.c|Src/spi_receive_it.c|Src/spi_tx_testing.c|Src/spi_tx_it_testing.c|Src/main.c|Src/i2c_master_rx_testing.c" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
