@@ -343,6 +343,13 @@ typedef struct
 #define I2C3_REG_RESET()			do{ (RCC->APB1ENR |= (1 << 23)); ( RCC->APB1ENR &= ~(1 << 23));}while(0)
 
 
+/*Macros to reset USART USARTx preipherals*/
+
+#define USART1_REG_RESET()			do{ (RCC->APB2ENR |= (1 << 4));  (RCC->APB2ENR &= ~(1 << 4));}while(0)
+#define USART2_REG_RESET()			do{ (RCC->APB1ENR |= (1 << 17)); (RCC->APB1ENR &= ~(1 << 17));}while(0)
+#define USART6_REG_RESET()			do{ (RCC->APB2ENR |= (1 << 5));  (RCC->APB2ENR &= ~(1 << 5));}while(0)
+
+
 #define GPIO_BASE_ADDR_TO_CODE(x)   ((x == GPIOA)?0:\
 									 (x == GPIOB)?1:\
 									 (x == GPIOC)?2:\
@@ -373,6 +380,11 @@ typedef struct
 #define IRQ_NO_I2C2_ER 		34
 #define IRQ_NO_I2C3_EV 		72
 #define IRQ_NO_I2C3_ER 		73
+
+#define IRQ_NO_USART1		37
+#define IRQ_NO_USART2		38
+#define IRQ_NO_USART6		71
+
 
 /*Some generic macros*/
 
