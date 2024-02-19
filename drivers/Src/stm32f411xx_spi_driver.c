@@ -393,17 +393,17 @@ void SPI_IRQ_InterruptConfig(uint8_t IRQNumber, uint8_t EnOrDi)
 	{
 		if(IRQNumber <= 31)
 		{
-			*NVIC_ICER0 |= (1 << IRQNumber);
+			*NVIC_ICER0 &= ~(1 << IRQNumber);
 		}
 
 		else if(IRQNumber > 31 && IRQNumber < 64)
 		{
-			*NVIC_ICER1 |= (1 << (IRQNumber % 32));
+			*NVIC_ICER1 &= ~(1 << (IRQNumber % 32));
 		}
 
 		else if(IRQNumber >= 64 && IRQNumber < 96)
 		{
-			*NVIC_ICER2 |= (1 << (IRQNumber % 64));
+			*NVIC_ICER2 &= ~(1 << (IRQNumber % 64));
 		}
 
 		else
